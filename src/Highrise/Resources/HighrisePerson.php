@@ -468,7 +468,7 @@ class HighrisePerson
 
     public function setVisibleTo($visible_to)
     {
-        $valid_permissions = array("Everyone", "Owner");
+        $valid_permissions = array("Everyone", "Owner", "NamedGroup");
         $visible_to = ucwords(strtolower($visible_to));
         if ($visible_to != null && !in_array($visible_to, $valid_permissions)) {
             throw new \Exception("$visible_to is not a valid visibility permission. Available visibility permissions: " . implode(", ", $valid_permissions));
