@@ -1,37 +1,16 @@
-Fork notes
-==========
-I forked the project to improve the basic version of the API client code which I found very ugly. I do not know if there was a good reason that certain things were done as they were made.     
-An amount of improvment can be done, but the current version is sufficient for my usage.    
-By the way, the basic behavior of use was kept. (If I wanted to remake an entiere Highrise API client, I would have used Guzzle to do it properly and easily)
+# libcast/highrise
 
-So, what's new ?
+This library is a full rewrite of [Highrise-PHP-Api](https://github.com/ignaciovazquez/Highrise-PHP-Api) aiming to improve usability and stick with modern PHP practices.
+
+New features include:
 
 * PHP 5.3 namespaces
 * Composer support
 * Ability to list global subject fields
 * Ability to add custom fields to a Person
 * Ability of deleting a email address of a Person
-* Some refactoring
 
-
-If you want to use the composer to load Highrise-PHP-Api, you can run:    
-
-```
-composer require libcast/highrise
-```
-
-Introduction
-============
-
-Highrise-PHP-Api is a project (currently in alpha) to provide easy access to 37signals' Highrise API to PHP Developers.
-
-Documentation is coming soon, please check the test directory for examples.
-
-This PHP Class currently allows CRUD support for People objects only. Support for other object types will be uploaded shortly.
-
-Please mind the tests are only supposed to run in a blank Highrise account and not on a live one.
-
-Features currently implemented:
+Existing features in original library:
 
 * People
 * Tasks
@@ -40,107 +19,138 @@ Features currently implemented:
 * Tags
 * Users
 
-Examples
-========
 
-Create a new person and set his address
------- - --- ------ --- --- --- -------
+## Installation
 
-        $person = new HighrisePerson($highrise);
-        $person->setFirstName("John");
-        $person->setLastName("Doe");
-        $person->addEmailAddress("johndoe@gmail.com");
+The recommended way to install `libcast/highrise` is to use [Composer](https://getcomposer.org):
 
-        $address = new HighriseAddress();
-        $address->setAddress("165 Test St.");
-        $address->setCity("Glasgow");
-        $address->setCountry("Scotland");
-        $address->setZip("GL1");
-        $person->addAddress($address);
-
-        $person->save();
-
-Find People by Search Term
----- ------ -- ------ ----
-
-        $people = $highrise->findPeopleBySearchTerm("John");
-        foreach($people as $p)
-                print $person->getFirstName() . "\n";
-Print all notes
------ --- -----
-
-      foreach($highrise->findAllPeople() as $person)
-        {
-                print_r($person->getNotes());
-        }
-
-Create a new note
------- - --- ----
-
-        $note = new HighriseNote($highrise);
-        $note->setSubjectType("Party");
-	$note->setSubjectId($person->getId());
-        $note->setBody("Test");
-	$note->save();
+```bash
+$ composer require libcast/highrise
+```
 
 
-Add tags
---- ----
+## Usage
 
-        $people = $highrise->findPeopleByTitle("CEO");
-        foreach($people as $person)
-        {
-                $person->addTag("CEO");
-			$person->save();
-        }
-Remove Tags
------- ----
+### People
 
-        $people = $highrise->findPeopleByTitle("Ex-CEO");
-        foreach($people as $person)
-        {
-                unset($person->tags['CEO']);
-                $person->save();
-        }
+Create a new person and set his address:
+```php
+use Highrise\Resources\HighrisePerson;
 
-Find all Tags
----- --- ----
+$person = new HighrisePerson($highrise);
+$person->setFirstName("John");
+$person->setLastName("Doe");
+$person->addEmailAddress("johndoe@gmail.com");
 
-        $all_tags = $highrise->findAllTags();
-	print_r($all_tags);
+$address = new HighriseAddress();
+$address->setAddress("165 Test St.");
+$address->setCity("Glasgow");
+$address->setCountry("Scotland");
+$address->setZip("GL1");
+$person->addAddress($address);
 
-Create Task
------- ----
+$person->save();
+```
 
-        $task = new HighriseTask($highrise);
-        $task->setBody("Task Body");
-	$task->setPublic(false);
-        $task->setFrame("Tomorrow");
-        $task->save();
-Assign all upcoming tasks
------- --- -------- -----
+Find people by search term:
+```php
+$people = $highrise->findPeopleBySearchTerm("John");
+foreach($people as $p) {
+    print $person->getFirstName() . "\n";
+}
+```
 
-        $users = $highrise->findAllUsers();
-	$user = $users[0]; // just select the first user
+### Notes
 
-	foreach($highrise->findUpcomingTasks() as $task)
-	{
-		$task->assignToUser($user);
-			$task->save();
-			}
+Print all notes:
 
-Find all assigned tasks
----- --- -------- -----
+```php
+foreach($highrise->findAllPeople() as $person) {
+    print_r($person->getNotes());
+}
+```
 
-     $assigned_tasks = $highrise->findAssignedTasks();
-     print_r($assigned_tasks);
+Create a new note:
 
-Find all users
----- --- -----
+```php
+$note = new HighriseNote($highrise);
+$note->setSubjectType("Party");
+$note->setSubjectId($person->getId());
+$note->setBody("Test");
+$note->save();
+```
 
-     $users = $highrise->findAllUsers();
-     print_r($users);
-Find current user
----- ------- ----
+### Tags
 
-     $me = $highrise->findMe();
+Add tags:
+
+```php
+$people = $highrise->findPeopleByTitle("CEO");
+foreach($people as $person) {
+    $person->addTag("CEO");
+    $person->save();
+}
+```php
+
+Remove Tags:
+
+```php
+$people = $highrise->findPeopleByTitle("Ex-CEO");
+foreach($people as $person) {
+    unset($person->tags['CEO']);
+    $person->save();
+}
+```
+
+Find all tags:
+
+```php
+$all_tags = $highrise->findAllTags();
+print_r($all_tags);
+```
+
+### Tasks
+
+Create task:
+
+```php
+$task = new HighriseTask($highrise);
+$task->setBody("Task Body");
+$task->setPublic(false);
+$task->setFrame("Tomorrow");
+$task->save();
+```
+
+Assign all upcoming tasks:
+
+```php
+$users = $highrise->findAllUsers();
+$user = $users[0]; // just select the first user
+
+foreach($highrise->findUpcomingTasks() as $task) {
+    $task->assignToUser($user);
+    $task->save();
+}
+```php
+
+Find all assigned tasks:
+
+```php
+$assigned_tasks = $highrise->findAssignedTasks();
+print_r($assigned_tasks);
+```
+
+### Users
+
+Find all users:
+
+```php
+$users = $highrise->findAllUsers();
+print_r($users);
+```
+
+Find current user:
+
+```php
+$me = $highrise->findMe();
+```
